@@ -283,10 +283,6 @@ function draw() {
     ctx.fillText("Coins: " + coinScore, 20, 80);
 }
 
-requestAnimationFrame(loop);
-
-}
-
 function endGame(){
 
 gameRunning=false;
