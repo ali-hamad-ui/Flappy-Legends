@@ -20,23 +20,20 @@ bestScoreText.textContent = best;
 let coins=[];
 let coinScore=0;
 
-function spawnCoin(){
+function spawnCoin() {
+    coins.push({
+        x: 400,
+        y: Math.random() * 350 + 80
+    });
+}
 
-coins.push({
+let coins = [];
+let coinScore = 0;
 
-x:400,
-
-y:Math.random()*350+80
-
-});
-
-let coins=[];
-let coinScore=0;
-
-let clouds=[
-{x:60,y:90},
-{x:230,y:120},
-{x:350,y:70}
+let clouds = [
+    {x:60,y:90},
+    {x:230,y:120},
+    {x:350,y:70}
 ];
 
 let bird;
@@ -44,42 +41,33 @@ let pipes;
 let score;
 let gameRunning;
 
-function startGame(){coins=[];
+function startGame(){
 
-coinScore=0;}
+    coins = [];
+    coinScore = 0;
 
-menu.style.display="none";
+    menu.style.display = "none";
+    gameOver.style.display = "none";
+    canvas.style.display = "block";
 
-gameOver.style.display="none";
+    bird = {
+        x:80,
+        y:250,
+        radius:18,
+        velocity:0
+    };
 
-canvas.style.display="block";
+    pipes = [];
+    score = 0;
+    gameRunning = true;
 
-bird={
+    spawnPipe();
 
-x:80,
+    if(Math.random() < 0.7){
+        spawnCoin();
+    }
 
-y:250,
-
-radius:18,
-
-velocity:0
-
-};
-
-pipes=[];
-
-score=0;
-
-gameRunning=true;
-
-spawnPipe();if(Math.random()<0.7){
-
-spawnCoin();
-
-}
-
-requestAnimationFrame(loop);
-
+    requestAnimationFrame(loop);
 }
 
 function spawnPipe(){
@@ -166,137 +154,74 @@ pipes.shift();
 
 }
 
+update();if(pipes.length==0 || pipes[pipes.length-1].x<220){
+    spawnPipe();
+    spawnCoin();
 }
 
-function draw(){
-
-ctx.clearRect(0,0,canvas.width,canvas.height);
-
-ctx.fillStyle="yellow";
-
-ctx.beginPath();
-
-ctx.arc(bird.x,bird.y,bird.radius,0,Math.PI*2);
-
-ctx.fill();
-
-ctx.fillStyle="green";
-
-pipes.forEach(p=>{
-
-ctx.fillRect(p.x,0,70,p.top);
-
-ctx.fillRect(p.x,p.bottom,70,canvas.height-p.bottom);
-
-});
-
-ctx.fillStyle="white";
-
-ctx.font="32px Arial";
-
-ctx.fillText(score,20,40);
-
+if(pipes[0].x < -70){
+    pipes.shift();
 }
 
-function loop(){
+function draw() {
 
-if(!gameRunning)return;
+    // Sky
+    const sky = ctx.createLinearGradient(0, 0, 0, 600);
+    sky.addColorStop(0, "#87CEEB");
+    sky.addColorStop(1, "#3AA0FF");
 
-update();// Move clouds
+    ctx.fillStyle = sky;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-clouds.forEach(c=>{
+    // Clouds
+    ctx.fillStyle = "white";
 
-c.x-=0.3;
+    clouds.forEach(c => {
+        ctx.beginPath();
+        ctx.arc(c.x, c.y, 25, 0, Math.PI * 2);
+        ctx.arc(c.x + 20, c.y - 10, 20, 0, Math.PI * 2);
+        ctx.arc(c.x + 40, c.y, 25, 0, Math.PI * 2);
+        ctx.fill();
+    });
 
-if(c.x<-70){
+    // Pipes
+    ctx.fillStyle = "#28b463";
 
-c.x=450;
+    pipes.forEach(pipe => {
+        ctx.fillRect(pipe.x, 0, 70, pipe.top);
+        ctx.fillRect(pipe.x, pipe.bottom, 70, canvas.height - pipe.bottom);
+    });
 
-}
+    // Coins
+    ctx.fillStyle = "gold";
 
-});
+    coins.forEach(coin => {
+        ctx.beginPath();
+        ctx.arc(coin.x, coin.y, 10, 0, Math.PI * 2);
+        ctx.fill();
+    });
 
-draw();function draw(){
+    // Ground
+    ctx.fillStyle = "#7CFC00";
+    ctx.fillRect(0, canvas.height - 30, canvas.width, 30);
 
-// Sky
-const sky = ctx.createLinearGradient(0,0,0,600);
-sky.addColorStop(0,"#87CEEB");
-sky.addColorStop(1,"#3AA0FF");
+    // Bird
+    ctx.save();
+    ctx.translate(bird.x, bird.y);
+    ctx.rotate(bird.velocity * 0.05);
 
-ctx.fillStyle = sky;
-ctx.fillRect(0,0,400,600);
+    ctx.fillStyle = "yellow";
+    ctx.beginPath();
+    ctx.arc(0, 0, bird.radius, 0, Math.PI * 2);
+    ctx.fill();
 
-// Clouds
-ctx.fillStyle="white";
+    ctx.restore();
 
-clouds.forEach(c=>{
-ctx.beginPath();
-ctx.arc(c.x,c.y,25,0,Math.PI*2);
-ctx.arc(c.x+20,c.y-10,20,0,Math.PI*2);
-ctx.arc(c.x+40,c.y,25,0,Math.PI*2);
-ctx.fill();
-});
-
-// Pipes
-
-ctx.fillStyle="#28b463";
-
-pipes.forEach(pipe=>{
-
-ctx.fillRect(pipe.x,0,70,pipe.top);
-
-ctx.fillRect(pipe.x,pipe.bottom,70,600-pipe.bottom);
-
-});
-
-// Coins
-
-ctx.fillStyle="gold";
-
-coins.forEach(coin=>{
-
-ctx.beginPath();
-
-ctx.arc(coin.x,coin.y,10,0,Math.PI*2);
-
-ctx.fill();
-
-});
-
-// Ground
-
-ctx.fillStyle="#7CFC00";
-
-ctx.fillRect(0,570,400,30);
-
-// Bird
-
-ctx.save();
-
-ctx.translate(bird.x,bird.y);
-
-ctx.rotate(bird.velocity*0.05);
-
-ctx.fillStyle="yellow";
-
-ctx.beginPath();
-
-ctx.arc(0,0,18,0,Math.PI*2);
-
-ctx.fill();
-
-ctx.restore();
-
-// Score
-
-ctx.fillStyle="white";
-
-ctx.font="30px Arial";
-
-ctx.fillText("Score: "+score,20,40);
-
-ctx.fillText("Coins: "+coinScore,20,80);
-
+    // Score
+    ctx.fillStyle = "white";
+    ctx.font = "30px Arial";
+    ctx.fillText("Score: " + score, 20, 40);
+    ctx.fillText("Coins: " + coinScore, 20, 80);
 }
 
 requestAnimationFrame(loop);
