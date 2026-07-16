@@ -17,8 +17,6 @@ let best = localStorage.getItem("best") || 0;
 
 bestScoreText.textContent = best;
 
-let coins=[];
-let coinScore=0;
 
 function spawnCoin() {
     coins.push({
@@ -153,14 +151,75 @@ if(pipes[0].x<-70){
 pipes.shift();
 
 }
+function update() {
 
-update();if(pipes.length==0 || pipes[pipes.length-1].x<220){
-    spawnPipe();
-    spawnCoin();
+    bird.velocity += 0.5;
+    bird.y += bird.velocity;
+
+    if (bird.y > canvas.height || bird.y < 0) {
+        endGame();
+    }
+
+    clouds.forEach(c => {
+        c.x -= 0.3;
+        if (c.x < -70) c.x = 450;
+    });
+
+    coins.forEach((coin, index) => {
+        coin.x -= 3;
+
+        if (
+            Math.abs(coin.x - bird.x) < 20 &&
+            Math.abs(coin.y - bird.y) < 20
+        ) {
+            coinScore++;
+            coins.splice(index, 1);
+        }
+    });
+
+    for (let i = 0; i < pipes.length; i++) {
+
+        let p = pipes[i];
+
+        p.x -= 3;
+
+        if (!p.passed && p.x < bird.x) {
+            score++;
+            p.passed = true;
+        }
+
+        if (
+            bird.x + bird.radius > p.x &&
+            bird.x - bird.radius < p.x + 70 &&
+            (
+                bird.y - bird.radius < p.top ||
+                bird.y + bird.radius > p.bottom
+            )
+        ) {
+            endGame();
+        }
+    }
+
+    if (pipes.length == 0 || pipes[pipes.length - 1].x < 220) {
+        spawnPipe();
+
+        if (Math.random() < 0.7)
+            spawnCoin();
+    }
+
+    if (pipes.length && pipes[0].x < -70) {
+        pipes.shift();
+    }
 }
 
-if(pipes[0].x < -70){
-    pipes.shift();
+function loop() {
+
+    if (!gameRunning) return;
+
+    update();
+    draw();
+
+    requestAnimationFrame(loop);
 }
 
 function draw() {
